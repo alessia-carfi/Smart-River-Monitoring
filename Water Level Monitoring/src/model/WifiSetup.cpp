@@ -9,10 +9,9 @@ const char *ssid = "";
 const char *password = "";
 
 /* MQTT server address for now I keep this */
-const char *mqtt_server = "broker.mqtt-dashboard.com";
+const char *mqtt_server = "";
 
-/* MQTT topic idk what a topic is */
-const char *topic = "esiot-2023";
+const char *topic = "waterlevel";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -51,7 +50,7 @@ void WifiSetup::reconnect()
         Serial.print("Attempting MQTT connection...");
 
         // Create a random client ID
-        String clientId = String("esiot-2122-client-") + String(random(0xffff), HEX);
+        String clientId = String("esp-") + String(random(0xffff), HEX);
 
         // Attempt to connect
         if (client.connect(clientId.c_str()))
