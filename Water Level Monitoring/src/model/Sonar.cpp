@@ -11,14 +11,9 @@ Sonar::Sonar(int trig, int echo)
     pinMode(echo, INPUT);
 }
 
-bool Sonar::isIn()
+bool Sonar::isOk()
 {
     return getDistance() <= MINDIST && getDistance() > 0.1;
-}
-
-bool Sonar::isOut()
-{
-    return getDistance() >= MAXDIST;
 }
 
 float Sonar::getDistance()
@@ -30,7 +25,6 @@ float Sonar::getDistance()
     digitalWrite(trig, LOW);
 
     long duration = pulseIn(echo, HIGH);
-    Serial.println(duration);
     int distance = duration * 0.034 / 2;
     
     return distance;
