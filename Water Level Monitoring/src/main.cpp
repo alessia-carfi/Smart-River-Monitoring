@@ -1,4 +1,4 @@
-#include "model/wifisetup.h"
+#include "model/WifiSetup.h"
 
 WifiSetup *wifisetup;
 

@@ -1,9 +1,18 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-#include "model/wifisetup.h"
+#include "model/WifiSetup.h"
 #include "model/Led.h"
-#include "utils/global.h"
+#include "utils/Global.h"
+
+const char *ssid = "";
+const char *password = "";
+
+/* MQTT server address for now I keep this */
+const char *mqtt_server = "broker.mqtt-dashboard.com";
+
+/* MQTT topic idk what a topic is */
+const char *topic = "esiot-2023";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -71,7 +80,7 @@ void WifiSetup::callback(char *topic, byte *payload, unsigned int length)
 
 void WifiSetup::setupMQTT()
 {
-    Serial.begin(115200);
+    Serial.begin(9600);
     setup_wifi();
     randomSeed(micros());
     client.setServer(mqtt_server, 1883);
