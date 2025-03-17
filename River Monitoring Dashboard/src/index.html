@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>River-monitoring-Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+    <div>
+      <h2>Water level trend</h2>
+        <canvas id="chart"></canvas>
+        <script>
+          const ctx = document.getElementById('chart').getContext('2d');
+          const dataPoints = [];
+          const labels = [];
+          const url = 'http://localhost:3000/dati';
+
+          // Initialize Chart.js chart
+          const chart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      label: 'Temperature (°C)',
+                      data: dataPoints,
+                      borderColor: 'rgba(75,192,192,1)',
+                      tension: 0.1,
+                  }]
+              },
+              options: {
+                  scales: {
+                      x: { title: { display: true, text: 'Time' } },
+                      y: { title: { display: true, text: 'Temperature (°C)' } }
+                  }
+              }
+          });
+
+          async function requestData() {
+          try{
+              const response = await fetch(url);
+              if(!response.ok) {
+                  throw new Error(`Errore HTTP! status: ${response.status}`);
+              }
+              const dati =  await response.json();
+              console.log(dati);
+              labels.push(dati.timestamp);
+              dataPoints.push(dati.value);
+              if(labels.length > 10) {
+                labels.shift();
+                dataPoints.shift();
+              }
+              chart.update();
+          } catch (error) {
+              console.log('Errore:',error.message);
+          }
+          }
+
+          setInterval(requestData, 5000);
+
+          console.log('Client avviato. Richieste ogni 10 sec');
+
+        </script>
+    </div>
+
+    <div>
+      <h2>State of the System</h2>
+    </div>
+
+    <div>
+      <h2>Valve opening level</h2>
+    </div>
+
+    <div>
+      <h2>Control manually the valve opening level</h2>
+    </div>
+
+  </body>
+</html>
