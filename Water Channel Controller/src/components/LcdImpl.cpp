@@ -1,13 +1,15 @@
-#include "LcdImpl.h"
+#include "model/LcdImpl.h"
 #include "Arduino.h"
 
-void LcdMonitorImpl::on() { 
+void LcdMonitorImpl::on()
+{
     // lcd.begin(16, 2);
     lcd.init();
     lcd.backlight();
 }
 
-void LcdMonitorImpl::write(const char str[], int angle) {
+void LcdMonitorImpl::write(const char str[], int angle)
+{
     int percentage = map(angle, 0, 180, 0, 100);
     char string[12];
     itoa(percentage, string, 10);

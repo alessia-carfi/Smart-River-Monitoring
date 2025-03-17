@@ -1,8 +1,8 @@
-#include "AsyncFSM.h"
+#include "utils/AsyncFSM.h"
 #include "Arduino.h"
 #include "EnableInterrupt.h"
 
-#define MAX_EVQUEUE_SIZE 20 
+#define MAX_EVQUEUE_SIZE 20
 
 /* ------------------------ InterruptDispatcher ----------- */
 
@@ -10,32 +10,33 @@
 
 InterruptDispatcher interruptDispatcher;
 
-/* 
+/*
  * Functions called by the interrupt handlers, used to notify interrupts to
  * to the interrupt dispatcher
- * 
+ *
  * Scenario
     Immagina di avere un'applicazione che gestisce un pulsante. Quando il pulsante viene premuto,
-    vuoi inviare una notifica di interruzione al sistema. Supponiamo che il pulsante attivi 
+    vuoi inviare una notifica di interruzione al sistema. Supponiamo che il pulsante attivi
     l'interruzione 0 per accendere un dispositivo e l'interruzione 1 per spegnerlo.
  */
-void InterruptDispatcher::notifyInterrupt_0(){ interruptDispatcher.notifyInterrupt(0); }
-void InterruptDispatcher::notifyInterrupt_1(){ interruptDispatcher.notifyInterrupt(1); }
-void InterruptDispatcher::notifyInterrupt_2(){ interruptDispatcher.notifyInterrupt(2); }
-void InterruptDispatcher::notifyInterrupt_3(){ interruptDispatcher.notifyInterrupt(3); }
-void InterruptDispatcher::notifyInterrupt_4(){ interruptDispatcher.notifyInterrupt(4); }
-void InterruptDispatcher::notifyInterrupt_5(){ interruptDispatcher.notifyInterrupt(5); }
-void InterruptDispatcher::notifyInterrupt_6(){ interruptDispatcher.notifyInterrupt(6); }
-void InterruptDispatcher::notifyInterrupt_7(){ interruptDispatcher.notifyInterrupt(7); }
-void InterruptDispatcher::notifyInterrupt_8(){ interruptDispatcher.notifyInterrupt(8); }
-void InterruptDispatcher::notifyInterrupt_9(){ interruptDispatcher.notifyInterrupt(9); }
-void InterruptDispatcher::notifyInterrupt_10(){ interruptDispatcher.notifyInterrupt(10); }
-void InterruptDispatcher::notifyInterrupt_11(){ interruptDispatcher.notifyInterrupt(11); }
-void InterruptDispatcher::notifyInterrupt_12(){ interruptDispatcher.notifyInterrupt(12); }
-void InterruptDispatcher::notifyInterrupt_13(){ interruptDispatcher.notifyInterrupt(13); }
-void InterruptDispatcher::notifyInterrupt_A0(){ interruptDispatcher.notifyInterrupt(A0); }
+void InterruptDispatcher::notifyInterrupt_0() { interruptDispatcher.notifyInterrupt(0); }
+void InterruptDispatcher::notifyInterrupt_1() { interruptDispatcher.notifyInterrupt(1); }
+void InterruptDispatcher::notifyInterrupt_2() { interruptDispatcher.notifyInterrupt(2); }
+void InterruptDispatcher::notifyInterrupt_3() { interruptDispatcher.notifyInterrupt(3); }
+void InterruptDispatcher::notifyInterrupt_4() { interruptDispatcher.notifyInterrupt(4); }
+void InterruptDispatcher::notifyInterrupt_5() { interruptDispatcher.notifyInterrupt(5); }
+void InterruptDispatcher::notifyInterrupt_6() { interruptDispatcher.notifyInterrupt(6); }
+void InterruptDispatcher::notifyInterrupt_7() { interruptDispatcher.notifyInterrupt(7); }
+void InterruptDispatcher::notifyInterrupt_8() { interruptDispatcher.notifyInterrupt(8); }
+void InterruptDispatcher::notifyInterrupt_9() { interruptDispatcher.notifyInterrupt(9); }
+void InterruptDispatcher::notifyInterrupt_10() { interruptDispatcher.notifyInterrupt(10); }
+void InterruptDispatcher::notifyInterrupt_11() { interruptDispatcher.notifyInterrupt(11); }
+void InterruptDispatcher::notifyInterrupt_12() { interruptDispatcher.notifyInterrupt(12); }
+void InterruptDispatcher::notifyInterrupt_13() { interruptDispatcher.notifyInterrupt(13); }
+void InterruptDispatcher::notifyInterrupt_A0() { interruptDispatcher.notifyInterrupt(A0); }
 
-InterruptDispatcher::InterruptDispatcher(){
+InterruptDispatcher::InterruptDispatcher()
+{
   notifyFunctions[0] = notifyInterrupt_0;
   notifyFunctions[1] = notifyInterrupt_1;
   notifyFunctions[2] = notifyInterrupt_2;
@@ -52,89 +53,108 @@ InterruptDispatcher::InterruptDispatcher(){
   notifyFunctions[13] = notifyInterrupt_13;
   notifyFunctions[A0] = notifyInterrupt_A0;
 }
-    
-void InterruptDispatcher::bind(int pin, EventSource* src){
+
+void InterruptDispatcher::bind(int pin, EventSource *src)
+{
   sourceRegisteredOnPin[pin] = src;
-  enableInterrupt(pin, notifyFunctions[pin], CHANGE);  
+  enableInterrupt(pin, notifyFunctions[pin], CHANGE);
 }
 
-void InterruptDispatcher::notifyInterrupt(int pin){
-  Serial.print("");  /* bug/race fix */
+void InterruptDispatcher::notifyInterrupt(int pin)
+{
+  Serial.print(""); /* bug/race fix */
   sourceRegisteredOnPin[pin]->notifyInterrupt(pin);
 }
 
 /* ------------------------ Event  ------------------------ */
 
-Event::Event(int type){
+Event::Event(int type)
+{
   this->type = type;
-} 
-  
-int Event::getType(){
-  return type;  
+}
+
+int Event::getType()
+{
+  return type;
 }
 
 /* --------------------- EventSource ------------------- */
-  
-void EventSource::bindInterrupt(int pin){
+
+void EventSource::bindInterrupt(int pin)
+{
   interruptDispatcher.bind(pin, this);
 }
 
-void EventSource::generateEvent(Event* ev) {
-  if (observer != NULL){
-    observer->notifyEvent(ev);  
+void EventSource::generateEvent(Event *ev)
+{
+  if (observer != NULL)
+  {
+    observer->notifyEvent(ev);
   }
 }
 
-void EventSource::registerObserver(Observer* observer){
+void EventSource::registerObserver(Observer *observer)
+{
   this->observer = observer;
 }
 
 /* ------------------------ EventQueue ------------------------ */
 
-EventQueue::EventQueue(){
-  head = tail = 0; 
+EventQueue::EventQueue()
+{
+  head = tail = 0;
 }
 
-bool EventQueue::isEmpty() {
-  return head == tail; 
+bool EventQueue::isEmpty()
+{
+  return head == tail;
 }
 
-void EventQueue::enqueue(Event* ev){
+void EventQueue::enqueue(Event *ev)
+{
   queue[tail] = ev;
-  tail = (tail+1) % MAX_EVQUEUE_SIZE;
+  tail = (tail + 1) % MAX_EVQUEUE_SIZE;
 }
 
-Event* EventQueue::dequeue(){
-    if (isEmpty()){
-      return 0;
-    } else {
-      Event* pev = queue[head];
-      head = (head+1) % MAX_EVQUEUE_SIZE;
-      return pev; 
-    }
+Event *EventQueue::dequeue()
+{
+  if (isEmpty())
+  {
+    return 0;
+  }
+  else
+  {
+    Event *pev = queue[head];
+    head = (head + 1) % MAX_EVQUEUE_SIZE;
+    return pev;
+  }
 }
 
 /* ------------------------ AsyncFSM   ------------------------ */
 
-AsyncFSM::AsyncFSM(){}
-    
-void AsyncFSM::notifyEvent(Event* ev){
+AsyncFSM::AsyncFSM() {}
+
+void AsyncFSM::notifyEvent(Event *ev)
+{
   eventQueue.enqueue(ev);
 }
 
-void AsyncFSM::checkEvents(){
+void AsyncFSM::checkEvents()
+{
+  noInterrupts();
+  bool isEmpty = eventQueue.isEmpty();
+  interrupts();
+
+  if (!isEmpty)
+  {
     noInterrupts();
-    bool isEmpty = eventQueue.isEmpty();
+    Event *ev = eventQueue.dequeue();
     interrupts();
 
-    if (!isEmpty){
-      noInterrupts();
-      Event* ev = eventQueue.dequeue();
-      interrupts();
-
-      if (ev != NULL){
-        handleEvent(ev);
-        delete ev;
-      }
-    }    
+    if (ev != NULL)
+    {
+      handleEvent(ev);
+      delete ev;
+    }
+  }
 }
