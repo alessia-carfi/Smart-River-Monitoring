@@ -5,11 +5,11 @@
 #include "model/Led.h"
 #include "utils/Global.h"
 
-const char *ssid = "";
-const char *password = "";
+const char *ssid = "5G SECRET HUMAN TEST";
+const char *password = "5705757057";
 
 /* MQTT server address for now I keep this */
-const char *mqtt_server = "";
+const char *mqtt_server = "192.168.1.91";
 
 const char *topic = "waterlevel";
 

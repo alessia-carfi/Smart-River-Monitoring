@@ -1,4 +1,4 @@
-#include "lib/PotImpl.h"
+#include "PotImpl.h"
 #include "Arduino.h"
 
 PotImpl::PotImpl(int pin) {

@@ -11,7 +11,6 @@
 #define ECHO 2
 #define TRIG 4
 
-#include "Task.h"
 #include <TimerOne.h>
 
 
@@ -28,11 +27,6 @@ enum State
 extern State state;
 
 extern int totalWashing;
-
-extern Task* detection;
-extern Task* blinkLed;
-extern Task* sonarTask;
-extern Task* stateMachine;
 
 extern bool isHere;
 extern bool in;

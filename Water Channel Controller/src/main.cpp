@@ -1,15 +1,14 @@
 #include "Arduino.h"
-#include <LiquidCrystal.h> 
 
 
-#include "fsm/asyncFSM.h"
+#include "AsyncFSM.h"
 
-#include "components/lib/ButtonImpl.h"
-#include "components/lib/PotImpl.h"
-#include "components/lib/ServoImpl.h"
-#include "components/lib/LcdImpl.h"
+#include "ButtonImpl.h"
+#include "PotImpl.h"
+#include "ServoImpl.h"
+#include "LcdImpl.h"
 
-#include "console/console.h"
+#include "Console.h"
 
 #define BUTTON_PIN 8
 #define SERVO_PIN 6

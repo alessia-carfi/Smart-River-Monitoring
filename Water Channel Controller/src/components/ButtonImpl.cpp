@@ -1,4 +1,4 @@
-#include "lib/ButtonImpl.h"
+#include "ButtonImpl.h"
 #include "Arduino.h"
 
 #define DEBOUNCING_TIME 20

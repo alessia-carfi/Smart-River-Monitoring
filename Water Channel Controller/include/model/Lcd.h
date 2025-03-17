@@ -1,19 +1,17 @@
-#ifndef __LCD__
-#define __LCD__
-
-#include <WString.h>
-#include <LiquidCrystal_I2C.h>
+#ifndef __LCDMONITOR__
+#define __LCDMONITOR__
 
 
-class Lcd {
-private:
-    LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2);
+/*
+* La classe LCdMonitor permette di visualizzare su un lcd 16x2 lo stato della macchina e l'angolo di apertura della valvola.
+*/
+
+class LcdMonitor {
 
 public:
-    Lcd();
-    void on();
-    void off();
-    void say(String msg);
+  virtual void on() = 0;
+  virtual void write(const char str[], int angle) = 0;
+  virtual ~LcdMonitor() {}
 };
 
 #endif
