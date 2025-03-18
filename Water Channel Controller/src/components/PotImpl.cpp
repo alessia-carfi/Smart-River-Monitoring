@@ -1,39 +1,29 @@
-#include "model/PotImpl.h"
+#include "model/Pot.h"
 #include "Arduino.h"
 
-PotImpl::PotImpl(int pin)
+Pot::Pot(int pin)
 {
     this->pin = pin;
     pinMode(pin, INPUT);
-    bindInterrupt(pin);
     lastValue = analogRead(pin);
 }
 
-bool PotImpl::isMoving()
+bool Pot::isMoving()
 {
-    long curr = analogRead(pin);
-    if (abs(curr - lastValue) > 10)
+    int curr = analogRead(pin);
+    if (abs(curr - lastValue) >= 3)
     {
-        Serial.println(curr);
-        lastValue = curr;
+        Serial.println(lastValue);  
+        lastValue = round(curr); 
+        Serial.println(lastValue);
+        delay(2000);
         return true;
+    } else {
+        return false;
     }
-    return false;
 }
 
-void PotImpl::notifyInterrupt(int pin)
+int Pot::getValue()
 {
-    long curr = analogRead(pin);
-    Event *ev;
-    if (isMoving())
-    {
-        lastValue = curr;
-        ev = new PotMoving(this);
-    }
-    this->generateEvent(ev);
-}
-
-long PotImpl::getValue()
-{
-    return map(analogRead(pin), 0, 1023, 0, 180);
+    return map(lastValue, 0, 1023, 0, 180);
 }

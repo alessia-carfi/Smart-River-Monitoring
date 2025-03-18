@@ -1,8 +1,9 @@
 #include "utils/AsyncFSM.h"
 #include "utils/Console.h"
+#include <math.h>
 
 #include "model/ButtonImpl.h"
-#include "model/PotImpl.h"
+#include "model/Pot.h"
 #include "model/ServoImpl.h"
 #include "model/LcdImpl.h"
 
@@ -18,7 +19,7 @@
 const byte numChars = 30;
 char receivedChars[numChars];
 boolean newData = false;
-long lastPotValue = 0;
+Pot *pot;
 
 /*
  * La classe ArduinoAsyncFSM permette di creare un handler per la FSM. Questo permette di gestire la logica delle transizioni della FSM
@@ -37,7 +38,7 @@ class ArduinoAsyncFSM : public AsyncFSM
 {
 
 public:
-  ArduinoAsyncFSM(Button *button, Console *console, ServoMotor *servo, LcdMonitor *lcd)
+  ArduinoAsyncFSM(Button *button, Console *console, ServoMotor *servo, LcdMonitor *lcd, Pot* pot)
   {
     currentState = AUTOMATIC;
     this->button = button;
@@ -91,8 +92,6 @@ public:
     }
 
     servo->setPosition(angle);
-    console->log(currentModeToString());
-    console->log(angle);
     lcd->write(currentModeToString(), angle);
   }
 
@@ -147,10 +146,9 @@ private:
     }
     else if (ev->getType() == POT_MOVING)
     {
-      angle = map(lastPotValue, 0, 1023, 0, 180);
-      ;
+      angle = pot->getValue();
     }
-    sendDataOnSerial();
+    //sendDataOnSerial();
   }
 
   void transitionToManual()
@@ -199,6 +197,7 @@ private:
 ArduinoAsyncFSM *fsm;
 Console *console;
 
+
 bool recvWithEndMarker()
 {
   static byte ndx = 0;
@@ -239,7 +238,7 @@ void analizeNewData()
     if (token != nullptr)
     {
       int angle = atoi(token);
-      if ((strcmp(modeStr, "MANUAL") == 0 || strcmp(modeStr, "AUTOMATIC") == 0) &&
+      if ((strcmp(modeStr, "MANUAL") == 0 || strcmp(modeStr, "AUTOMATIC") == 0 || strcmp(modeStr, "ADMIN") == 0) &&
           (angle >= 0 && angle <= 1023))
       {
         fsm->setCurrentMode(modeStr);
@@ -249,7 +248,7 @@ void analizeNewData()
       }
       else
       {
-        console->log(receivedChars);
+        //console->log(receivedChars);
         console->log("The message does not conform to the format: MODE-ANGLE");
       }
     }
@@ -262,15 +261,14 @@ void setup()
   console = new Console();
   ServoMotor *servo = new ServoMotorImpl(SERVO_PIN);
   LcdMonitor *lcd = new LcdMonitorImpl();
+  pot = new Pot(POT_PIN);
 
   Serial.begin(115200);
   while (!Serial)
   {
   }
 
-  pinMode(POT_PIN, INPUT);
-
-  fsm = new ArduinoAsyncFSM(button, console, servo, lcd);
+  fsm = new ArduinoAsyncFSM(button, console, servo, lcd, pot);
 }
 
 void loop()
@@ -282,11 +280,8 @@ void loop()
   }
   if (fsm->isManual())
   {
-    long curr = analogRead(POT_PIN);
-    if (abs(curr - lastPotValue) > 2)
+    if (pot->isMoving())
     {
-      Serial.println(curr);
-      lastPotValue = curr;
       Event *ev = new Event(POT_MOVING);
       fsm->notifyEvent(ev);
     }
