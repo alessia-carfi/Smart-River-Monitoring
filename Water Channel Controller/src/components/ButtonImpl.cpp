@@ -6,19 +6,19 @@
 ButtonImpl::ButtonImpl(int pin)
 {
     this->pin = pin;
-    pinMode(pin, INPUT);
+    pinMode(pin, INPUT_PULLUP);
     bindInterrupt(pin);
     lastEventTime = millis();
 }
 
 bool ButtonImpl::isPressed()
 {
-    return digitalRead(pin) == HIGH;
+    return digitalRead(pin) == LOW;
 }
 
 void ButtonImpl::notifyInterrupt(int pin)
 {
-    long curr = millis();
+    unsigned long curr = millis();
     if (curr - lastEventTime > DEBOUNCING_TIME)
     {
         lastEventTime = curr;

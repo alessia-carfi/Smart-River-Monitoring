@@ -11,11 +11,13 @@ Pot::Pot(int pin)
 bool Pot::isMoving()
 {
     int curr = analogRead(pin);
-    if (abs(curr - lastValue) >= 5)
-    {   
-        lastValue = round(curr); 
+    if (abs(curr - lastValue) >= 3)
+    {
+        lastValue = round(curr);
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }

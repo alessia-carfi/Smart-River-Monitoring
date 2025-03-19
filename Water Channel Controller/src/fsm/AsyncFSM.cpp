@@ -122,7 +122,7 @@ void EventQueue::enqueue(Event *ev)
   {
     // Queue is full, handle overflow (e.g., discard oldest event)
     Serial.println("Queue overflow!");
-    dequeue(); // Remove oldest event
+    dequeue();
   }
   queue[tail] = ev;
   tail = (tail + 1) % MAX_EVQUEUE_SIZE;

@@ -13,7 +13,7 @@ public:
 
 private:
     int pin;
-    long lastEventTime;
+    unsigned long lastEventTime;
 };
 
 #endif
