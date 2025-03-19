@@ -51,7 +51,6 @@ public:
 
   void handleEvent(Event *ev)
   {
-    console->log("evento");
     switch (currentState)
     {
     /**
@@ -286,4 +285,5 @@ void loop()
       fsm->notifyEvent(ev);
     }
   }
+  console->log(fsm->isManual()?"MANUAL":"AUTOMATIC");
 }

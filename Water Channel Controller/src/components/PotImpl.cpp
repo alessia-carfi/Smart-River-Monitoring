@@ -11,12 +11,9 @@ Pot::Pot(int pin)
 bool Pot::isMoving()
 {
     int curr = analogRead(pin);
-    if (abs(curr - lastValue) >= 3)
-    {
-        Serial.println(lastValue);  
+    if (abs(curr - lastValue) >= 5)
+    {   
         lastValue = round(curr); 
-        Serial.println(lastValue);
-        delay(2000);
         return true;
     } else {
         return false;

@@ -1,7 +1,7 @@
 #include "model/ButtonImpl.h"
 #include "Arduino.h"
 
-#define DEBOUNCING_TIME 20
+#define DEBOUNCING_TIME 50
 
 ButtonImpl::ButtonImpl(int pin)
 {
