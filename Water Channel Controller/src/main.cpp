@@ -38,9 +38,9 @@ class ArduinoAsyncFSM : public AsyncFSM
 {
 
 public:
-  ArduinoAsyncFSM(Button *button, Console *console, ServoMotor *servo, LcdMonitor *lcd, Pot* pot)
+  ArduinoAsyncFSM(Button *button, Console *console, ServoMotor *servo, LcdMonitor *lcd, Pot *pot)
   {
-    currentState = AUTOMATIC;
+    currentState = MANUAL;
     this->button = button;
     this->servo = servo;
     this->lcd = lcd;
@@ -51,6 +51,7 @@ public:
 
   void handleEvent(Event *ev)
   {
+    Serial.print("");
     switch (currentState)
     {
     /**
@@ -62,6 +63,7 @@ public:
      *  nel secondo deve cambiare lo stato ad ADMIN.
      */
     case AUTOMATIC:
+      // console->log("AUTOMATIC");
       handleAutomaticState(ev);
       break;
 
@@ -75,6 +77,7 @@ public:
      *  stato automatico per evitare problematica. Lo stato ADMIN è disattivato.
      */
     case MANUAL:
+      // console->log("MANUAL");
       handleManualState(ev);
       break;
 
@@ -83,13 +86,14 @@ public:
      *  di informazione riguardo allo stato di sistema: può essere ADMIN o AUTOMATIC.
      */
     case ADMIN:
+      // console->log("ADMIN");
       break;
 
     default:
-      console->log("Errore, stato non riconosciuto");
+      // console->log("Errore, stato non riconosciuto");
       break;
     }
-
+    Serial.print("");
     servo->setPosition(angle);
     lcd->write(currentModeToString(), angle);
   }
@@ -120,13 +124,19 @@ public:
     return currentState == MANUAL;
   }
 
+  void printCurrentState()
+  {
+    Serial.print("Current state: ");
+    Serial.println(currentModeToString());
+  }
+
 private:
   Button *button;
   Console *console;
   ServoMotor *servo;
   LcdMonitor *lcd;
   Mode currentState;
-  int angle;
+  int angle = 0;
   char serialStr[30];
 
   void handleAutomaticState(Event *ev)
@@ -147,7 +157,7 @@ private:
     {
       angle = pot->getValue();
     }
-    //sendDataOnSerial();
+    // sendDataOnSerial();
   }
 
   void transitionToManual()
@@ -195,7 +205,6 @@ private:
 
 ArduinoAsyncFSM *fsm;
 Console *console;
-
 
 bool recvWithEndMarker()
 {
@@ -247,7 +256,7 @@ void analizeNewData()
       }
       else
       {
-        //console->log(receivedChars);
+        // console->log(receivedChars);
         console->log("The message does not conform to the format: MODE-ANGLE");
       }
     }
@@ -279,11 +288,15 @@ void loop()
   }
   if (fsm->isManual())
   {
+    // Serial.println("MANUAL");
     if (pot->isMoving())
     {
       Event *ev = new Event(POT_MOVING);
       fsm->notifyEvent(ev);
     }
   }
-  console->log(fsm->isManual()?"MANUAL":"AUTOMATIC");
+  // else
+  // {
+  //   fsm->printCurrentState();
+  // }
 }

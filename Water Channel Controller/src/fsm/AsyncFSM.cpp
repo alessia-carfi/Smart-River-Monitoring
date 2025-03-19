@@ -110,9 +110,16 @@ bool EventQueue::isEmpty()
   return head == tail;
 }
 
+// void EventQueue::enqueue(Event *ev)
+// {
+//   queue[tail] = ev;
+//   tail = (tail + 1) % MAX_EVQUEUE_SIZE;
+// }
+
 void EventQueue::enqueue(Event *ev)
 {
-  if ((tail + 1) % MAX_EVQUEUE_SIZE == head) {
+  if ((tail + 1) % MAX_EVQUEUE_SIZE == head)
+  {
     // Queue is full, handle overflow (e.g., discard oldest event)
     Serial.println("Queue overflow!");
     dequeue(); // Remove oldest event
