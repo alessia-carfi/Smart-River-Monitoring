@@ -40,7 +40,7 @@ class ArduinoAsyncFSM : public AsyncFSM
 public:
   ArduinoAsyncFSM(Button *button, Console *console, ServoMotor *servo, LcdMonitor *lcd, Pot *pot)
   {
-    currentState = MANUAL;
+    currentState = AUTOMATIC;
     this->button = button;
     this->servo = servo;
     this->lcd = lcd;
@@ -63,7 +63,6 @@ public:
      *  nel secondo deve cambiare lo stato ad ADMIN.
      */
     case AUTOMATIC:
-      // console->log("AUTOMATIC");
       handleAutomaticState(ev);
       break;
 
@@ -77,7 +76,6 @@ public:
      *  stato automatico per evitare problematica. Lo stato ADMIN è disattivato.
      */
     case MANUAL:
-      // console->log("MANUAL");
       handleManualState(ev);
       break;
 
@@ -86,11 +84,10 @@ public:
      *  di informazione riguardo allo stato di sistema: può essere ADMIN o AUTOMATIC.
      */
     case ADMIN:
-      // console->log("ADMIN");
       break;
 
     default:
-      // console->log("Errore, stato non riconosciuto");
+      console->log("Errore, stato non riconosciuto");
       break;
     }
     Serial.print("");
@@ -122,12 +119,6 @@ public:
   bool isManual()
   {
     return currentState == MANUAL;
-  }
-
-  void printCurrentState()
-  {
-    Serial.print("Current state: ");
-    Serial.println(currentModeToString());
   }
 
 private:
@@ -288,15 +279,10 @@ void loop()
   }
   if (fsm->isManual())
   {
-    // Serial.println("MANUAL");
     if (pot->isMoving())
     {
       Event *ev = new Event(POT_MOVING);
       fsm->notifyEvent(ev);
     }
   }
-  // else
-  // {
-  //   fsm->printCurrentState();
-  // }
 }
