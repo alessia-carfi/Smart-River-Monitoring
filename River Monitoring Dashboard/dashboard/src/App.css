@@ -1,0 +1,11 @@
+.App {
+  display: grid;
+  grid-template-columns: repeat(2, 45%);
+  grid-template-rows: repeat(2, 45%);
+  row-gap: 2rem;
+  column-gap: 2rem;
+  justify-content: center;
+  align-content: center;
+  background-color: honeydew;
+  margin: 1rem 0;
+}
