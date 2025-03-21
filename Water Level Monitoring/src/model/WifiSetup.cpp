@@ -5,17 +5,16 @@
 #include "model/Led.h"
 #include "utils/Global.h"
 
-const char *ssid = "5G SECRET HUMAN TEST";
-const char *password = "5705757057";
+const char *ssid = "Galaxy S25";
+const char *password = "Sc14092001";
 
 /* MQTT server address for now I keep this */
 const char *mqtt_server = "192.168.1.91";
 
-const char *topic = "waterlevel";
+const char *topic = "water-level";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-
 unsigned long lastMsgTime = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;

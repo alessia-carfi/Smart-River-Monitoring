@@ -67,12 +67,24 @@ parser.on("data", (data) => {
 
 //http
 var app = express();
+
 app.get("/", function (req, res) {
   // response.send("Hello World!");
   res.json({
     currentWaterLevel,
     valveOpeningLevel,
-    monitoringFrequency,
+    valveInput,
+  });
+});
+
+app.post("/data", (req, res) => {
+  const { valveInput, valveOpeningLevel } = req.body;
+
+  console.log("Received data:", { valveInput, valveOpeningLevel });
+
+  res.json({
+    message: "Data received successfully",
+    receivedData: { valveInput, valveOpeningLevel },
   });
 });
 
