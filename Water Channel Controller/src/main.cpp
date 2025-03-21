@@ -148,7 +148,7 @@ private:
     {
       angle = pot->getValue();
     }
-    // sendDataOnSerial();
+    sendDataOnSerial();
   }
 
   void transitionToManual()
@@ -190,6 +190,7 @@ private:
     strcat(serialStr, "-");
     strcat(serialStr, intToString(angle));
     Serial.write(serialStr);
+    Serial.write("\n");
     serialStr[0] = '\0';
   }
 };

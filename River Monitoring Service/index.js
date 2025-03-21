@@ -1,6 +1,7 @@
 const express = require("express");
 const mqtt = require("mqtt");
 const { SerialPort } = require("serialport");
+const { ReadlineParser } = require("@serialport/parser-readline");
 const TOPIC = "water-level";
 
 const MACHINE_STATE = {
@@ -53,8 +54,15 @@ mqttclient.on("message", (topic, message) => {
 });
 
 const serialPort = new SerialPort({
-  path: "/dev/tty0",
+  // alexa: path: "/dev/tty0",
+  path: "COM5",
   baudRate: 115200,
+});
+
+const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\n" }));
+
+parser.on("data", (data) => {
+  console.log(`Received from Arduino: ${data}`);
 });
 
 //http
@@ -100,5 +108,29 @@ function updateSystemState() {
     console.log("State: ALARM-TOO-HIGH-CRITIC");
   }
 
-  serialPort.write(`${valveState}-${valveOpeningLevel}`);
+  sendDataToArduino(valveState, valveOpeningLevel);
+}
+
+function mapValue(value, inputMin, inputMax, outputMin, outputMax) {
+  return (
+    ((value - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) +
+    outputMin
+  );
+}
+
+function sendDataToArduino(valveState, valveOpeningLevel) {
+  serialPort.write(`${valveState}-${valveOpeningLevel}`, (err) => {
+    if (err) {
+      return console.error("Error on write: ", err.message);
+    }
+    console.log(
+      `Sent to Arduino: ${valveState}-${mapValue(
+        valveOpeningLevel,
+        0,
+        100,
+        0,
+        180
+      )}`
+    );
+  });
 }
