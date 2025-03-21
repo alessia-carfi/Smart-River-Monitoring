@@ -108,7 +108,7 @@ function updateSystemState() {
     console.log("State: ALARM-TOO-HIGH-CRITIC");
   }
 
-  sendDataToArduino(valveState, valveOpeningLevel);
+  sendDataToArduino(valveInput, valveOpeningLevel);
 }
 
 function mapValue(value, inputMin, inputMax, outputMin, outputMax) {
@@ -118,19 +118,16 @@ function mapValue(value, inputMin, inputMax, outputMin, outputMax) {
   );
 }
 
-function sendDataToArduino(valveState, valveOpeningLevel) {
-  serialPort.write(`${valveState}-${valveOpeningLevel}`, (err) => {
-    if (err) {
-      return console.error("Error on write: ", err.message);
+function sendDataToArduino(valveInput, valveOpeningLevel) {
+  serialPort.write(
+    `${valveInput}_${mapValue(valveOpeningLevel, 0, 100, 0, 180)}\n`,
+    (err) => {
+      if (err) {
+        return console.error("Error on write: ", err.message);
+      }
+      console.log(
+        `${valveInput}_${mapValue(valveOpeningLevel, 0, 100, 0, 180)}`
+      );
     }
-    console.log(
-      `Sent to Arduino: ${valveState}-${mapValue(
-        valveOpeningLevel,
-        0,
-        100,
-        0,
-        180
-      )}`
-    );
-  });
+  );
 }

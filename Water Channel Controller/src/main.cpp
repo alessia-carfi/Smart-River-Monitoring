@@ -97,7 +97,7 @@ public:
 
   void setCurrentMode(char str[])
   {
-    if (strcmp(str, "AUTOMATIC") == 0)
+    if (strcmp(str, "AUTOMATIC") == 0 && currentState != MANUAL)
     {
       currentState = AUTOMATIC;
     }
@@ -229,7 +229,7 @@ bool recvWithEndMarker()
 
 void analizeNewData()
 {
-  char modeStr[10];
+  char modeStr[20];
   char *token = strtok(receivedChars, "-");
   if (token != nullptr)
   {
@@ -239,7 +239,7 @@ void analizeNewData()
     {
       int angle = atoi(token);
       if ((strcmp(modeStr, "MANUAL") == 0 || strcmp(modeStr, "AUTOMATIC") == 0 || strcmp(modeStr, "ADMIN") == 0) &&
-          (angle >= 0 && angle <= 1023))
+          (angle >= 0 && angle <= 180))
       {
         fsm->setCurrentMode(modeStr);
         fsm->setAngle(angle);
