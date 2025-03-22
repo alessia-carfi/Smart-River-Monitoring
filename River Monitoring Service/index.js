@@ -1,5 +1,6 @@
 const express = require("express");
 const mqtt = require("mqtt");
+const cors = require("cors");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 const TOPIC = "water-level";
@@ -54,8 +55,9 @@ mqttclient.on("message", (topic, message) => {
 });
 
 const serialPort = new SerialPort({
-  // alexa: path: "/dev/tty0",
-  path: "COM5",
+  // path: "/dev/ttyACM0",
+  path: "/dev/tty0",
+  // path: "COM5",
   baudRate: 115200,
 });
 
@@ -67,6 +69,8 @@ parser.on("data", (data) => {
 
 //http
 var app = express();
+app.use(cors());
+app.use(express.json());
 
 app.get("/", function (req, res) {
   // response.send("Hello World!");
@@ -74,6 +78,7 @@ app.get("/", function (req, res) {
     currentWaterLevel,
     valveOpeningLevel,
     valveInput,
+    time: new Date().toISOString(),
   });
 });
 
@@ -132,13 +137,13 @@ function mapValue(value, inputMin, inputMax, outputMin, outputMax) {
 
 function sendDataToArduino(valveInput, valveOpeningLevel) {
   serialPort.write(
-    `${valveInput}_${mapValue(valveOpeningLevel, 0, 100, 0, 180)}\n`,
+    `${valveInput}-${mapValue(valveOpeningLevel, 0, 100, 0, 180)}\n`,
     (err) => {
       if (err) {
         return console.error("Error on write: ", err.message);
       }
       console.log(
-        `${valveInput}_${mapValue(valveOpeningLevel, 0, 100, 0, 180)}`
+        `${valveInput}-${mapValue(valveOpeningLevel, 0, 100, 0, 180)}`
       );
     }
   );

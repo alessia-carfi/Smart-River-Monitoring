@@ -5,7 +5,7 @@ export const DataContext = createContext({});
 
 export const DataProvider = ({ children }) => {
   const [response, setResponse] = useState(null);
-  const [espData, setEspData] = useState(null);
+  const [espData, setEspData] = useState([]);
   const [error, setError] = useState(null);
 
   const sendData = async (data) => {
@@ -21,24 +21,27 @@ export const DataProvider = ({ children }) => {
 
   const fetchData = async () => {
     try {
-      const result = await DataApi.getData();
-      setEspData(result);
+      const result = (await DataApi.getData()) || [];
+      setEspData([...espData, result]);
       setError(null);
     } catch (err) {
       setError(err.message);
-      setEspData(null);
+      setEspData([]);
     }
   };
 
   useEffect(() => {
-    fetchData();
-
-    const intervalId = setInterval(() => {
+    new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
       fetchData();
-    }, 10000);
+    });
+    // fetchData();
 
-    return () => clearInterval(intervalId);
-  }, []);
+    // const intervalId = setInterval(() => {
+    //   fetchData();
+    // }, 10000);
+
+    // return () => clearInterval(intervalId);
+  });
 
   return (
     <DataContext.Provider value={{ sendData, response, error, espData }}>

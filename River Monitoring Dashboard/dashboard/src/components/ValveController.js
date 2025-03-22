@@ -1,14 +1,14 @@
 import { useData } from "../hooks/UseData";
 import { useState } from "react";
-const MODE = "ADMIN";
+const valveInput = "ADMIN";
 
 function ValveController() {
-  const { sendData, response, error } = useData();
-  const [num, setNum] = useState("");
+  const { sendData } = useData();
+  const [valveOpeningLevel, setValveOpeningLevel] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = { num, MODE };
+    const data = { valveOpeningLevel, valveInput };
     sendData(data);
   };
 
@@ -20,10 +20,10 @@ function ValveController() {
           type="range"
           min="0"
           max="100"
-          value={num}
-          onChange={(e) => setNum(e.target.value)}
+          value={valveOpeningLevel}
+          onChange={(e) => setValveOpeningLevel(e.target.value)}
         />
-        <p>Valve is open at: {num}%</p>
+        <p>Valve is open at: {valveOpeningLevel || 50}%</p>
         <button type="submit">Submit</button>
       </form>
     </div>

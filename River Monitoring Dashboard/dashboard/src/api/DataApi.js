@@ -1,7 +1,7 @@
 class DataApi {
-  async sendData(data) {
+  static async sendData(data) {
     try {
-      const response = await fetch("http://localhost:3000/data", {
+      const response = await fetch("http://localhost:10000/data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,9 +20,9 @@ class DataApi {
     }
   }
 
-  async getData() {
+  static async getData() {
     try {
-      const response = await fetch("http://localhost:3000");
+      const response = await fetch("http://localhost:10000");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
