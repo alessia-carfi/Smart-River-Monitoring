@@ -23,17 +23,3 @@ bool Led::status()
 {
     return turnedOff;
 }
-
-void Led::blink()
-{
-    if (turnedOff)
-    {
-        on();
-        turnedOff = false;
-    }
-    else
-    {
-        off();
-        turnedOff = true;
-    }
-}

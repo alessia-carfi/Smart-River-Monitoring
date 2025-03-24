@@ -33,7 +33,7 @@ let valveInput = VALVE_INPUT.AUTOMATIC;
 let valveState = MACHINE_STATE.NORMAL;
 
 //mqtt
-const mqttclient = mqtt.connect("localhost", {
+const mqttclient = mqtt.connect("mqtt://192.168.183.15:1883", {
   protocol: "mqtt",
   clientId: "waterlevel-js",
 });
@@ -55,9 +55,10 @@ mqttclient.on("message", (topic, message) => {
 });
 
 const serialPort = new SerialPort({
-  // path: "/dev/ttyACM0",
-  path: "/dev/tty0",
-  // path: "COM5",
+   //path: "/dev/ttyACM0",
+  // path: "/dev/tty0",
+    path: "COM4",
+  //path: "/dev/ttyUSB0",
   baudRate: 115200,
 });
 
@@ -103,26 +104,31 @@ function updateSystemState() {
     monitoringFrequency = F1;
     valveState = MACHINE_STATE.ALARM_TOO_LOW;
     console.log("State: ALARM-TOO-LOW");
+    console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel >= WL1 && currentWaterLevel <= WL2) {
     valveOpeningLevel = 25;
     monitoringFrequency = F1;
     valveState = MACHINE_STATE.NORMAL;
     console.log("State: NORMAL");
+    console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel > WL2 && currentWaterLevel <= WL3) {
     valveOpeningLevel = 0.5 * 100;
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.PRE_ALARM_TOO_HIGH;
     console.log("State: PRE-ALARM-TOO-HIGH");
+    console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel > WL3 && currentWaterLevel <= WL4) {
     valveOpeningLevel = 50;
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.ALARM_TOO_HIGH;
     console.log("State: ALARM-TOO-HIGH");
+    console.log("currentWaterLevel", currentWaterLevel);
   } else {
     valveOpeningLevel = 100;
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.ALARM_TOO_HIGH_CRITIC;
     console.log("State: ALARM-TOO-HIGH-CRITIC");
+    console.log("currentWaterLevel", currentWaterLevel);
   }
 
   sendDataToArduino(valveInput, valveOpeningLevel);

@@ -3,13 +3,14 @@
 
 #include "model/WifiSetup.h"
 #include "model/Led.h"
+#include "model/Sonar.h"
 #include "utils/Global.h"
 
 const char *ssid = "Galaxy S25";
 const char *password = "Sc14092001";
 
 /* MQTT server address for now I keep this */
-const char *mqtt_server = "192.168.1.91";
+const char *mqtt_server = "192.168.183.15";
 
 const char *topic = "water-level";
 
@@ -20,6 +21,7 @@ char msg[MSG_BUFFER_SIZE];
 int value = 0;
 Led *green = new Led(GREEN_LED);
 Led *red = new Led(RED_LED);
+Sonar *sonar = new Sonar(TRIG_PIN, ECHO_PIN);
 
 void WifiSetup::setup_wifi()
 {
@@ -49,6 +51,7 @@ void WifiSetup::reconnect()
         Serial.print("Attempting MQTT connection...");
 
         // Create a random client ID
+        
         String clientId = String("esp-") + String(random(0xffff), HEX);
 
         // Attempt to connect
@@ -62,6 +65,11 @@ void WifiSetup::reconnect()
         }
         else
         {
+            if (green->status())
+            {
+                green->off();
+                red->on();
+            }
             Serial.print("failed, rc=");
             Serial.print(client.state());
             Serial.println(" try again in 5 seconds");
@@ -78,8 +86,10 @@ void WifiSetup::callback(char *topic, byte *payload, unsigned int length)
 
 void WifiSetup::setupMQTT()
 {
-    Serial.begin(9600);
+    // Serial.begin(9600);
     setup_wifi();
+    red->on();
+    green->off();
     randomSeed(micros());
     client.setServer(mqtt_server, 1883);
     client.setCallback(callback);
@@ -89,11 +99,6 @@ void WifiSetup::loopMQTT()
 {
     if (!client.connected())
     {
-        if (green->status())
-        {
-            green->off();
-            red->on();
-        }
         reconnect();
     }
     else
@@ -104,13 +109,12 @@ void WifiSetup::loopMQTT()
     client.loop();
 
     unsigned long now = millis();
-    if (now - lastMsgTime > 10000)
+    if (now - lastMsgTime > 3000)
     {
         lastMsgTime = now;
-        value++;
+        int waterLevel = sonar->getDistance(); 
 
-        /* creating a msg in the buffer */
-        snprintf(msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
+        snprintf(msg, MSG_BUFFER_SIZE, "%d", waterLevel);
 
         Serial.println(String("Publishing message: ") + msg);
 
