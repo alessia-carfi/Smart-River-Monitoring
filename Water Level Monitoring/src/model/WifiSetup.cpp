@@ -10,7 +10,7 @@ const char *ssid = "Galaxy S25";
 const char *password = "Sc14092001";
 
 /* MQTT server address for now I keep this */
-const char *mqtt_server = "192.168.183.15";
+const char *mqtt_server = "192.168.72.15";
 
 const char *topic = "water-level";
 
@@ -19,6 +19,7 @@ PubSubClient client(espClient);
 unsigned long lastMsgTime = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
+unsigned long frequency = 10000;
 Led *green = new Led(GREEN_LED);
 Led *red = new Led(RED_LED);
 Sonar *sonar = new Sonar(TRIG_PIN, ECHO_PIN);
@@ -62,6 +63,7 @@ void WifiSetup::reconnect()
             // client.publish("outTopic", "hello world");
             // ... and resubscribe
             client.subscribe(topic);
+            client.subscribe("water-frequency");
         }
         else
         {
@@ -81,12 +83,14 @@ void WifiSetup::reconnect()
 
 void WifiSetup::callback(char *topic, byte *payload, unsigned int length)
 {
-    Serial.println(String("Message arrived on [") + topic + "] len: " + length);
+    if (String(topic) == "water-frequency") {
+        int newFrequency = atoi((char*)payload); 
+        frequency = newFrequency;
+    }
 }
 
 void WifiSetup::setupMQTT()
 {
-    // Serial.begin(9600);
     setup_wifi();
     red->on();
     green->off();
@@ -109,7 +113,7 @@ void WifiSetup::loopMQTT()
     client.loop();
 
     unsigned long now = millis();
-    if (now - lastMsgTime > 3000)
+    if (now - lastMsgTime > frequency)
     {
         lastMsgTime = now;
         int waterLevel = sonar->getDistance(); 

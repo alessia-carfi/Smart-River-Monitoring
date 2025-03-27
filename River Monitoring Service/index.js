@@ -23,17 +23,18 @@ const WL1 = 10;
 const WL2 = 20;
 const WL3 = 30;
 const WL4 = 40;
-const F1 = 5000;
-const F2 = 2000;
+const F1 = 9000;
+const F2 = 1000;
 
 let currentWaterLevel = 0;
 let monitoringFrequency = F1;
+let oldFrequency = F1;
 let valveOpeningLevel = 25;
 let valveInput = VALVE_INPUT.AUTOMATIC;
 let valveState = MACHINE_STATE.NORMAL;
 
 //mqtt
-const mqttclient = mqtt.connect("mqtt://192.168.183.15:1883", {
+const mqttclient = mqtt.connect("mqtt://192.168.72.15:1883", {
   protocol: "mqtt",
   clientId: "waterlevel-js",
 });
@@ -129,6 +130,11 @@ function updateSystemState() {
     valveState = MACHINE_STATE.ALARM_TOO_HIGH_CRITIC;
     console.log("State: ALARM-TOO-HIGH-CRITIC");
     console.log("currentWaterLevel", currentWaterLevel);
+  }
+
+  if(oldFrequency !== monitoringFrequency){
+    oldFrequency = monitoringFrequency;
+    mqttclient.publish("water-frequency", String(monitoringFrequency));
   }
 
   sendDataToArduino(valveInput, valveOpeningLevel);
