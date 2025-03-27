@@ -25,22 +25,30 @@ function AppComponents() {
 
   useEffect(() => {
     setChartData({
-      labels: espData ? espData.map((item) => item["time"]) : [],
+      labels: espData ? espData.slice(-50).map((item) => item["time"]) : [],
       datasets: [
         {
           label: "Water Level",
-          data: espData ? espData.map((item) => item["currentWaterLevel"]) : [],
-          backgroundColor: [
-            "rgba(75,192,192,1)",
-            "#ecf0f1",
-            "#50AF95",
-            "#f3ba2f",
-            "#2a71d0",
-          ],
+          data: espData
+            ? espData.slice(-50).map((item) => item["currentWaterLevel"])
+            : [],
+          backgroundColor: ["rgba(75,192,192,1)"],
           borderColor: "black",
           borderWidth: 2,
+          fill: true,
         },
       ],
+      options: {
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              stepSize: 15,
+            },
+          },
+        },
+      },
     });
   }, [espData]);
 

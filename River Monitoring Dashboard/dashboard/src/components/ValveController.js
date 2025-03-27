@@ -1,13 +1,20 @@
 import { useData } from "../hooks/UseData";
 import { useState } from "react";
-const valveInput = "ADMIN";
 
 function ValveController() {
   const { sendData } = useData();
   const [valveOpeningLevel, setValveOpeningLevel] = useState("");
+  const [valveInput, setValveInput] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setValveInput("ADMIN");
+    sendData(valveInput, valveOpeningLevel);
+  };
+
+  const handleCancel = (e) => {
+    e.preventDefault();
+    setValveInput("AUTOMATIC");
     sendData(valveInput, valveOpeningLevel);
   };
 
@@ -24,6 +31,9 @@ function ValveController() {
         />
         <p>Valve is open at: {valveOpeningLevel || 50}%</p>
         <button type="submit">Submit</button>
+      </form>
+      <form onSubmit={handleCancel}>
+        <button type="submit">Cancel</button>
       </form>
     </div>
   );
