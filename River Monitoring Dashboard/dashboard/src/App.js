@@ -49,7 +49,7 @@ function AppComponents() {
       <Linechart chartData={chartData} />
       <State
         mode={
-          espData.length > 0 ? espData[espData.length - 1]["valveInput"] : ""
+          espData.length > 0 ? espData[espData.length - 1]["valveState"] : ""
         }
       />
       <ValveState

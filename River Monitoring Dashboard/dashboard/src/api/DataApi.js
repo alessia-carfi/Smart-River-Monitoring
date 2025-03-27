@@ -1,12 +1,12 @@
 class DataApi {
-  static async sendData(data) {
+  static async sendData(valveInput, valveOpeningLevel) {
     try {
-      const response = await fetch("http://localhost:10000/data", {
+      const response = await fetch("http://192.168.72.48:10000/data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ valveInput, valveOpeningLevel }),
       });
 
       if (!response.ok) {
@@ -22,7 +22,7 @@ class DataApi {
 
   static async getData() {
     try {
-      const response = await fetch("http://localhost:10000");
+      const response = await fetch("http://192.168.72.48:10000");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

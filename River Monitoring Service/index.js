@@ -29,12 +29,12 @@ const F2 = 1000;
 let currentWaterLevel = 0;
 let monitoringFrequency = F1;
 let oldFrequency = F1;
-let valveOpeningLevel = 25;
-let valveInput = VALVE_INPUT.AUTOMATIC;
+let serverValveOpeningLevel = 25;
+let serverValveInput = VALVE_INPUT.AUTOMATIC;
 let valveState = MACHINE_STATE.NORMAL;
 
 //mqtt
-const mqttclient = mqtt.connect("mqtt://192.168.72.15:1883", {
+const mqttclient = mqtt.connect("mqtt://192.168.72.48:1883", {
   protocol: "mqtt",
   clientId: "waterlevel-js",
 });
@@ -56,10 +56,9 @@ mqttclient.on("message", (topic, message) => {
 });
 
 const serialPort = new SerialPort({
-   //path: "/dev/ttyACM0",
+  path: "/dev/ttyACM0",
   // path: "/dev/tty0",
-    path: "COM4",
-  //path: "/dev/ttyUSB0",
+  // path: "COM4",
   baudRate: 115200,
 });
 
@@ -67,6 +66,11 @@ const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\n" }));
 
 parser.on("data", (data) => {
   console.log(`Received from Arduino: ${data}`);
+  const [serialValveInput, serialValveOpeningLevel] = data.split("-");
+  serverValveInput = serialValveInput;
+  serverValveOpeningLevel = parseInt(
+    mapValue(serialValveOpeningLevel, 0, 180, 0, 100)
+  );
 });
 
 //http
@@ -78,16 +82,18 @@ app.get("/", function (req, res) {
   // response.send("Hello World!");
   res.json({
     currentWaterLevel,
-    valveOpeningLevel,
-    valveInput,
+    valveOpeningLevel: serverValveOpeningLevel,
+    valveState,
     time: new Date().toISOString(),
   });
 });
 
 app.post("/data", (req, res) => {
   const { valveInput, valveOpeningLevel } = req.body;
-
   console.log("Received data:", { valveInput, valveOpeningLevel });
+
+  serverValveInput = valveInput;
+  serverValveOpeningLevel = parseInt(valveOpeningLevel);
 
   res.json({
     message: "Data received successfully",
@@ -101,43 +107,52 @@ app.listen(10000, function () {
 
 function updateSystemState() {
   if (currentWaterLevel < WL1) {
-    valveOpeningLevel = 0;
+    if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
+      serverValveOpeningLevel = 0;
+    }
     monitoringFrequency = F1;
     valveState = MACHINE_STATE.ALARM_TOO_LOW;
     console.log("State: ALARM-TOO-LOW");
     console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel >= WL1 && currentWaterLevel <= WL2) {
-    valveOpeningLevel = 25;
+    if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
+      serverValveOpeningLevel = 25;
+    }
     monitoringFrequency = F1;
     valveState = MACHINE_STATE.NORMAL;
     console.log("State: NORMAL");
     console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel > WL2 && currentWaterLevel <= WL3) {
-    valveOpeningLevel = 0.5 * 100;
+    if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
+      serverValveOpeningLevel = 0.5 * 100;
+    }
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.PRE_ALARM_TOO_HIGH;
     console.log("State: PRE-ALARM-TOO-HIGH");
     console.log("currentWaterLevel", currentWaterLevel);
   } else if (currentWaterLevel > WL3 && currentWaterLevel <= WL4) {
-    valveOpeningLevel = 50;
+    if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
+      serverValveOpeningLevel = 50;
+    }
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.ALARM_TOO_HIGH;
     console.log("State: ALARM-TOO-HIGH");
     console.log("currentWaterLevel", currentWaterLevel);
   } else {
-    valveOpeningLevel = 100;
+    if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
+      serverValveOpeningLevel = 100;
+    }
     monitoringFrequency = F2;
     valveState = MACHINE_STATE.ALARM_TOO_HIGH_CRITIC;
     console.log("State: ALARM-TOO-HIGH-CRITIC");
     console.log("currentWaterLevel", currentWaterLevel);
   }
 
-  if(oldFrequency !== monitoringFrequency){
+  if (oldFrequency !== monitoringFrequency) {
     oldFrequency = monitoringFrequency;
     mqttclient.publish("water-frequency", String(monitoringFrequency));
   }
-
-  sendDataToArduino(valveInput, valveOpeningLevel);
+  sendDataToArduino(serverValveInput, serverValveOpeningLevel);
 }
 
 function mapValue(value, inputMin, inputMax, outputMin, outputMax) {
@@ -154,9 +169,6 @@ function sendDataToArduino(valveInput, valveOpeningLevel) {
       if (err) {
         return console.error("Error on write: ", err.message);
       }
-      console.log(
-        `${valveInput}-${mapValue(valveOpeningLevel, 0, 100, 0, 180)}`
-      );
     }
   );
 }

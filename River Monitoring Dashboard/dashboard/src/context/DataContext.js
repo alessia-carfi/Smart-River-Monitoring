@@ -8,9 +8,9 @@ export const DataProvider = ({ children }) => {
   const [espData, setEspData] = useState([]);
   const [error, setError] = useState(null);
 
-  const sendData = async (data) => {
+  const sendData = async (valveInput, valveOpeningLevel) => {
     try {
-      const result = await DataApi.sendData(data);
+      const result = await DataApi.sendData(valveInput, valveOpeningLevel);
       setResponse(result);
       setError(null);
     } catch (err) {
@@ -31,16 +31,9 @@ export const DataProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
+    new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
       fetchData();
     });
-    // fetchData();
-
-    // const intervalId = setInterval(() => {
-    //   fetchData();
-    // }, 10000);
-
-    // return () => clearInterval(intervalId);
   });
 
   return (

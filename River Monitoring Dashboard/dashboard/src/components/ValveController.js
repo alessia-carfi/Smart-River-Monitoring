@@ -8,8 +8,7 @@ function ValveController() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = { valveOpeningLevel, valveInput };
-    sendData(data);
+    sendData(valveInput, valveOpeningLevel);
   };
 
   return (
