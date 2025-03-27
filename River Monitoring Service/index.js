@@ -19,14 +19,16 @@ const VALVE_INPUT = {
   ADMIN: "ADMIN",
 };
 
-const WL1 = 10;
+const WL1 = 30;
 const WL2 = 20;
-const WL3 = 30;
-const WL4 = 40;
-const F1 = 9000;
+const WL3 = 10;
+const WL4 = 5;
+const WATER_LEVEL_MAX = 50;
+const F1 = 5000;
 const F2 = 1000;
 
 let currentWaterLevel = 0;
+let effectiveWaterLevel = 0;
 let monitoringFrequency = F1;
 let oldFrequency = F1;
 let serverValveOpeningLevel = 25;
@@ -81,10 +83,10 @@ app.use(express.json());
 app.get("/", function (req, res) {
   // response.send("Hello World!");
   res.json({
-    currentWaterLevel,
+    effectiveWaterLevel,
     valveOpeningLevel: serverValveOpeningLevel,
     valveState,
-    time: new Date().toISOString(),
+    time: new Date().toLocaleTimeString(),
   });
 });
 
@@ -106,7 +108,8 @@ app.listen(10000, function () {
 });
 
 function updateSystemState() {
-  if (currentWaterLevel < WL1) {
+  effectiveWaterLevel = WATER_LEVEL_MAX - currentWaterLevel;
+  if (currentWaterLevel > WL1) {
     if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
       serverValveOpeningLevel = 0;
     }
@@ -114,7 +117,7 @@ function updateSystemState() {
     valveState = MACHINE_STATE.ALARM_TOO_LOW;
     console.log("State: ALARM-TOO-LOW");
     console.log("currentWaterLevel", currentWaterLevel);
-  } else if (currentWaterLevel >= WL1 && currentWaterLevel <= WL2) {
+  } else if (currentWaterLevel >= WL2 && currentWaterLevel <= WL1) {
     if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
       serverValveOpeningLevel = 25;
     }
@@ -122,7 +125,7 @@ function updateSystemState() {
     valveState = MACHINE_STATE.NORMAL;
     console.log("State: NORMAL");
     console.log("currentWaterLevel", currentWaterLevel);
-  } else if (currentWaterLevel > WL2 && currentWaterLevel <= WL3) {
+  } else if (currentWaterLevel > WL3 && currentWaterLevel <= WL2) {
     if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
       serverValveOpeningLevel = 0.5 * 100;
     }
@@ -130,7 +133,7 @@ function updateSystemState() {
     valveState = MACHINE_STATE.PRE_ALARM_TOO_HIGH;
     console.log("State: PRE-ALARM-TOO-HIGH");
     console.log("currentWaterLevel", currentWaterLevel);
-  } else if (currentWaterLevel > WL3 && currentWaterLevel <= WL4) {
+  } else if (currentWaterLevel > WL4 && currentWaterLevel <= WL3) {
     if (serverValveInput === VALVE_INPUT.AUTOMATIC) {
       serverValveOpeningLevel = 50;
     }

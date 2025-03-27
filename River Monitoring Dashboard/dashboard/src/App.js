@@ -25,12 +25,12 @@ function AppComponents() {
 
   useEffect(() => {
     setChartData({
-      labels: espData ? espData.slice(-50).map((item) => item["time"]) : [],
+      labels: espData ? espData.slice(-20).map((item) => item["time"]) : [],
       datasets: [
         {
           label: "Water Level",
           data: espData
-            ? espData.slice(-50).map((item) => item["currentWaterLevel"])
+            ? espData.slice(-20).map((item) => item["effectiveWaterLevel"])
             : [],
           backgroundColor: ["rgba(75,192,192,1)"],
           borderColor: "black",
